@@ -1,18 +1,20 @@
 import pg from "pg";
+import config from "../config/config";
 
 const { Pool } = pg;
 
 export const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+
+    connectionString: config.connection_String,
 });
 
 export const initilizeDB = async () => {
     try {
         await pool.query(`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(200) NOT NULL UNIQUE,
+            password VARCHAR(30) NOT NULL,
             role VARCHAR(50) NOT NULL DEFAULT 'contributor',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -30,7 +32,7 @@ export const initilizeDB = async () => {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`);
         console.log("Database initialized successfully.");
-    } catch (error) {
-        console.error("Error initializing database:", error);
+    } catch (error: any) {
+        console.error("Error initializing database:", error.message);
     }
 };
