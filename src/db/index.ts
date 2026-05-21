@@ -12,10 +12,13 @@ export const initilizeDB = async () => {
     try {
         await pool.query(`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
+
             name VARCHAR(100) NOT NULL,
             email VARCHAR(200) NOT NULL UNIQUE,
             password VARCHAR(30) NOT NULL,
             role VARCHAR(50) NOT NULL DEFAULT 'contributor',
+
+
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`);
@@ -23,11 +26,14 @@ export const initilizeDB = async () => {
 
         await pool.query(`CREATE TABLE IF NOT EXISTS issues(
             id SERIAL PRIMARY KEY,
+
             title VARCHAR(255) NOT NULL,
             description TEXT CHECK (LENGTH(description) >= 20),
             type VARCHAR(50) NOT NULL DEFAULT 'bug',
             status VARCHAR(50) NOT NULL DEFAULT 'open',
-            reporter_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            reporter_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+
+
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`);

@@ -1,9 +1,14 @@
+import { pool } from "../../db";
 import type { Issue } from "./Issues.interface";
 
 const createIssueInDB = async (issueData: Issue) => {
+    const { title, description, type, status, reporter_id } = issueData;
     try {
-        // Database logic to create an issue
-        console.log("Issue created in database:", issueData);
+        const result = await pool.query(
+            "INSERT INTO issues (title, description, type, status, reporter_id) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [title, description, type, status, reporter_id]
+        );
+        return result.rows[0];
     } catch (error: any) {
         console.error("Error creating issue in database:", error.message);
     }
@@ -11,35 +16,39 @@ const createIssueInDB = async (issueData: Issue) => {
 
 const getAllIssuesFromDB = async () => {
     try {
-        // Database logic to fetch all issues
-        console.log("Fetching all issues from database");
+        const result = await pool.query("SELECT * FROM issues");
+        return result.rows;
     } catch (error: any) {
         console.error("Error fetching issues from database:", error.message);
     }
 };
 
-const getIssueByIdFromDB = async (id: string) => {
+const getIssueByIdFromDB = async (id: number) => {
     try {
-        // Database logic to fetch an issue by ID
-        console.log("Fetching issue from database:", id);
+        const result = await pool.query("SELECT * FROM issues WHERE id = $1", [id]);
+        return result.rows[0];
     } catch (error: any) {
         console.error("Error fetching issue from database:", error.message);
     }
 };
 
-const updateIssueInDB = async (id: string, issueData: Issue) => {
+const updateIssueInDB = async (id: number, issueData: Issue) => {
+    const { title, description, type, status, reporter_id } = issueData;
     try {
-        // Database logic to update an issue
-        console.log("Issue updated in database:", id, issueData);
+        const result = await pool.query(
+            "UPDATE issues SET title = $1, description = $2, type = $3, status = $4, reporter_id = $5 WHERE id = $6 RETURNING *",
+            [title, description, type, status, reporter_id, id]
+        );
+        return result.rows[0];
     } catch (error: any) {
         console.error("Error updating issue in database:", error.message);
     }
 };
 
-const deleteIssueFromDB = async (id: string) => {
+const deleteIssueFromDB = async (id: number) => {
     try {
-        // Database logic to delete an issue
-        console.log("Issue deleted from database:", id);
+        const result = await pool.query("DELETE FROM issues WHERE id = $1", [id]);
+        return result.rows[0];
     } catch (error: any) {
         console.error("Error deleting issue from database:", error.message);
     }

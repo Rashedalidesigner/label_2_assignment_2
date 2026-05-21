@@ -4,10 +4,7 @@ import { usersController } from "./users.controller";
 const router = Router();
 
 // Define routes for users here
-router.get("/users", usersController.getUser);
-router.post("/users", usersController.createUser);
-router.put("/users/:id", usersController.updateUser);
-router.delete("/users/:id", usersController.deleteUser);
-router.get("/users/:id", usersController.getUserById);
+router.post("/auth/sign-up", usersController.createUser);
+router.post("/auth/login", usersController.login);
 
 export const UsersRouter = router;

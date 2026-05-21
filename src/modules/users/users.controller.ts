@@ -1,20 +1,11 @@
 import type { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { usersServices } from "./users.services";
 
-const getUser = async (req: Request, res: Response) => {
-    const users = await usersServices.getUser();
-    if (users.length === 0) {
-        return res.status(404).json({
-            success: false,
-            message: "No users found",
-        });
-    }
-    res.json(users);
-};
+const login = async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
-const getUserById = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const user = await usersServices.getUserById(Number(id));
+    const user = await usersServices.getUserById(email);
     // console.log(user)
     if (user.length === 0) {
         return res.status(404).json({
@@ -22,16 +13,29 @@ const getUserById = async (req: Request, res: Response) => {
             message: "User not found",
         });
     }
+
+    const isPasswordValid = user[0].password === password;
+    if (!isPasswordValid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid password",
+        });
+    }
+
+    const genaratedToken = jwt.sign({ id: user[0].id, email: user[0].email, role: user[0].role }, process.env.JWT_SECRET || "default_secret", {
+        expiresIn: "1h"
+    });
+
     res.json({
         success: true,
         message: "User retrieved successfully",
-        data: user
+        data: user,
+        token: genaratedToken
     });
 };
 
 const createUser = async (req: Request, res: Response) => {
-    const userData = req.body;
-    const newUser = await usersServices.createUser(userData);
+    const newUser = await usersServices.createUser(req.body);
     if (!newUser) {
         return res.status(500).json({
             success: false,
@@ -45,45 +49,10 @@ const createUser = async (req: Request, res: Response) => {
     });
 };
 
-const updateUser = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const userData = req.body;
-    const updatedUser = await usersServices.updateUser(id as string, userData);
-    // console.log(updatedUser);
-    if (!updatedUser) {
-        return res.status(404).json({
-            success: false,
-            message: "User not found",
-        });
-    }
-    res.json({
-        success: true,
-        message: "User updated successfully",
-        data: updatedUser
-    });
-};
 
-const deleteUser = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    console.log(id)
-    const deletedUser = await usersServices.deleteUser(Number(id));
-    if (!deletedUser) {
-        return res.status(404).json({
-            success: false,
-            message: "User not found",
-        });
-    }
-    res.json({
-        success: true,
-        message: "User deleted successfully",
-        data: deletedUser
-    });
-}
+
 
 export const usersController = {
-    getUser,
     createUser,
-    updateUser,
-    deleteUser,
-    getUserById
+    login
 }
