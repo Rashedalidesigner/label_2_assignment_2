@@ -30,9 +30,8 @@ export const initilizeDB = async () => {
             title VARCHAR(255) NOT NULL,
             description TEXT CHECK (LENGTH(description) >= 20),
             type VARCHAR(50) NOT NULL DEFAULT 'bug',
-            status VARCHAR(50) NOT NULL DEFAULT 'open',
+            status VARCHAR(50) DEFAULT 'open',
             reporter_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-
 
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

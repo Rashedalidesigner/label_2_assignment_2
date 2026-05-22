@@ -1,10 +1,37 @@
 import type { Request, Response } from "express";
 import { issuesService } from "./issues.services";
+import type { IssueWithReporter } from "./Issues.interface";
 
 const getissues = async (req: Request, res: Response) => {
     try {
         const result = await issuesService.getAllIssuesFromDB();
-        res.json(result);
+        if (!result || result.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No issues found"
+            });
+        }
+        const formattedData = result.map((issue) => ({
+
+            id: issue.id,
+            title: issue.title,
+            description: issue.description,
+            type: issue.type,
+            status: issue.status,
+
+            reporter: {
+                id: issue.reporter_id,
+                name: issue.reporter_name,
+                role: issue.reporter_role,
+            },
+
+            created_at: issue.created_at,
+            updated_at: issue.updated_at,
+        }));
+        res.json({
+            success: true,
+            data: formattedData
+        });
     } catch (error: any) {
         throw new Error("Error fetching issues", { cause: error.message });
     }
@@ -12,8 +39,33 @@ const getissues = async (req: Request, res: Response) => {
 
 const getIssueById = async (req: Request, res: Response) => {
     try {
-        const result = await issuesService.getIssueByIdFromDB(Number(req.params.id));
-        res.json(result);
+        const result: IssueWithReporter = await issuesService.getIssueByIdFromDB(Number(req.params.id));
+        if (!result) {
+            return res.status(404).json({
+                success: false,
+                message: "Issue not found"
+            });
+        }
+        const formattedData = {
+            id: result.id,
+            title: result.title,
+            description: result.description,
+            type: result.type,
+            status: result.status,
+
+            reporter: {
+                id: result.reporter_id,
+                name: result.reporter_name,
+                role: result.reporter_role,
+            },
+
+            created_at: result.created_at,
+            updated_at: result.updated_at,
+        };
+        res.json({
+            success: true,
+            data: formattedData
+        });
     } catch (error: any) {
         throw new Error("Error fetching issue", { cause: error.message });
     }
@@ -21,9 +73,24 @@ const getIssueById = async (req: Request, res: Response) => {
 
 
 const createIssue = async (req: Request, res: Response) => {
+    const issueData = req.body;
+    const id = req.user.id;
+    issueData.reporter_id = id;
+    console.log(issueData);
     try {
-        const result = await issuesService.createIssueInDB(req.body);
-        res.status(201).json(result);
+        const result = await issuesService.createIssueInDB(issueData);
+        if (!result) {
+            return res.status(400).json({
+                success: false,
+                message: "Failed to create issue"
+            });
+        }
+
+        res.status(201).json({
+            success: true,
+            message: "Issue created successfully",
+            data: result
+        });
     } catch (error: any) {
         throw new Error("Error creating issue", { cause: error.message });
     }
@@ -31,9 +98,17 @@ const createIssue = async (req: Request, res: Response) => {
 
 
 const updateIssue = async (req: Request, res: Response) => {
+    const issueData = req.body;
+    const id = req.user.id;
+    issueData.status = issueData.status || 'in_progress';
+    issueData.reporter_id = id;
     try {
-        const result = await issuesService.updateIssueInDB(Number(req.params.id), req.body);
-        res.json(result);
+        const result = await issuesService.updateIssueInDB(Number(req.params.id), issueData);
+        res.json({
+            success: true,
+            message: "Issue updated successfully",
+            data: result
+        });
     } catch (error: any) {
         throw new Error("Error updating issue", { cause: error.message });
     }
@@ -41,8 +116,17 @@ const updateIssue = async (req: Request, res: Response) => {
 
 const deleteIssue = async (req: Request, res: Response) => {
     try {
-        await issuesService.deleteIssueFromDB(Number(req.params.id));
-        res.status(204).send();
+        const result = await issuesService.deleteIssueFromDB(Number(req.params.id));
+        if (!result) {
+            return res.json({
+                success: false,
+                message: "Issue not found"
+            });
+        }
+        return res.json({
+            success: true,
+            message: "Issue deleted successfully",
+        });
     } catch (error: any) {
         throw new Error("Error deleting issue", { cause: error.message });
     }

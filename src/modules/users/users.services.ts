@@ -2,11 +2,9 @@ import { pool } from "../../db";
 import type { IUser } from "./users.interface";
 
 
-const getUserById = async (id: number) => {
-    // Implementation for getting user by ID
-    const data = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
-    console.log(data);
-    return data.rows;
+const getUserById = async (email: string) => {
+    const data = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    return data.rows[0];
 };
 
 const createUser = async (userData: IUser) => {
