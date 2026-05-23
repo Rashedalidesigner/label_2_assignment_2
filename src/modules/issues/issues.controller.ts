@@ -1,6 +1,7 @@
 import type { Request as ExpressRequest, Response } from "express";
 import { issuesService } from "./issues.services";
 import type { IssueWithReporter } from "./Issues.interface";
+import { sendResponse } from "../../utility/sendResponse";
 
 const getissues = async (req: ExpressRequest, res: Response) => {
     try {
@@ -9,7 +10,8 @@ const getissues = async (req: ExpressRequest, res: Response) => {
         const status = req.query.status as string | undefined;
         const result = await issuesService.getAllIssuesFromDB(sort, type, status);
         if (!result || result.length === 0) {
-            return res.status(404).json({
+            return sendResponse(res, {
+                statusCode: 404,
                 success: false,
                 message: "No issues found"
             });
@@ -31,7 +33,8 @@ const getissues = async (req: ExpressRequest, res: Response) => {
             created_at: issue.created_at,
             updated_at: issue.updated_at,
         }));
-        res.json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             data: formattedData
         });
@@ -44,7 +47,8 @@ const getIssueById = async (req: ExpressRequest, res: Response) => {
     try {
         const result: IssueWithReporter = await issuesService.getIssueByIdFromDB(Number(req.params.id));
         if (!result) {
-            return res.status(404).json({
+            return sendResponse(res, {
+                statusCode: 404,
                 success: false,
                 message: "Issue not found"
             });
@@ -65,7 +69,8 @@ const getIssueById = async (req: ExpressRequest, res: Response) => {
             created_at: result.created_at,
             updated_at: result.updated_at,
         };
-        res.json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             data: formattedData
         });
@@ -83,13 +88,15 @@ const createIssue = async (req: ExpressRequest, res: Response) => {
     try {
         const result = await issuesService.createIssueInDB(issueData);
         if (!result) {
-            return res.status(400).json({
+            return sendResponse(res, {
+                statusCode: 400,
                 success: false,
                 message: "Failed to create issue"
             });
         }
 
-        res.status(201).json({
+        sendResponse(res, {
+            statusCode: 201,
             success: true,
             message: "Issue created successfully",
             data: result
@@ -107,7 +114,8 @@ const updateIssue = async (req: ExpressRequest, res: Response) => {
     issueData.reporter_id = id;
     try {
         const result = await issuesService.updateIssueInDB(Number(req.params.id), issueData);
-        res.json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "Issue updated successfully",
             data: result
@@ -121,12 +129,14 @@ const deleteIssue = async (req: ExpressRequest, res: Response) => {
     try {
         const result = await issuesService.deleteIssueFromDB(Number(req.params.id));
         if (!result) {
-            return res.json({
+            return sendResponse(res, {
+                statusCode: 404,
                 success: false,
                 message: "Issue not found"
             });
         }
-        return res.json({
+        return sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "Issue deleted successfully",
         });

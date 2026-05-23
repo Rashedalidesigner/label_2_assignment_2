@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { usersServices } from "./users.services";
 import config from "../../config/config";
+import { sendResponse } from "../../utility/sendResponse";
 
 const login = async (req: Request, res: Response) => {
     try {
@@ -10,7 +11,8 @@ const login = async (req: Request, res: Response) => {
 
         const user = await usersServices.getUserById(email);
         if (!user) {
-            return res.status(404).json({
+            return sendResponse(res, {
+                statusCode: 404,
                 success: false,
                 message: "User not found",
             });
@@ -19,7 +21,8 @@ const login = async (req: Request, res: Response) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
         console.log(isPasswordValid);
         if (!isPasswordValid) {
-            return res.status(401).json({
+            return sendResponse(res, {
+                statusCode: 401,
                 success: false,
                 message: "Invalid password",
             });
@@ -32,7 +35,8 @@ const login = async (req: Request, res: Response) => {
         const userWithoutPassword = { ...user };
         delete userWithoutPassword.password;
 
-        res.json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "User retrieved successfully",
             data: {
@@ -42,7 +46,8 @@ const login = async (req: Request, res: Response) => {
 
         });
     } catch (error: any) {
-        res.status(500).json({
+        sendResponse(res, {
+            statusCode: 500,
             success: false,
             message: "Error logging in",
             error: error.message
@@ -56,7 +61,8 @@ const createUser = async (req: Request, res: Response) => {
     try {
         const userExist = await usersServices.getUserById(req.body.email);
         if (userExist) {
-            return res.status(400).json({
+            return sendResponse(res, {
+                statusCode: 400,
                 success: false,
                 message: "User already exists",
             });
@@ -64,30 +70,33 @@ const createUser = async (req: Request, res: Response) => {
 
         let password = req.body.password;
         if (!password || password.length < 6) {
-            return res.status(400).json({
+            return sendResponse(res, {
+                statusCode: 400,
                 success: false,
-                message: "Password must be at least 6 characters long",
+                message: "Password must be at least 6 characters long"
             });
         }
         const data = req.body;
-
-        password = await bcrypt.hashSync(password, 10);
+        password = await bcrypt.hash(password, 10);
         data.password = password;
         const newUser = await usersServices.createUser({ ...req.body, password });
 
         if (!newUser) {
-            return res.status(500).json({
+            return sendResponse(res, {
+                statusCode: 400,
                 success: false,
-                message: "Failed to create user",
+                message: "Failed to create user"
             });
         }
-        res.status(201).json({
+        sendResponse(res, {
+            statusCode: 201,
             success: true,
             message: "User registered successfully",
             data: newUser
         });
     } catch (error: any) {
-        res.status(500).json({
+        sendResponse(res, {
+            statusCode: 500,
             success: false,
             message: "Error creating user",
             error: error.message
