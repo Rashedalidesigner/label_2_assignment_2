@@ -3,6 +3,7 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "./auth.js";
 import { pool } from "../db/index.js";
+import { sendResponse } from "../utility/sendResponse.js";
 
 export const authorize = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -16,7 +17,8 @@ export const authorize = async (req: AuthRequest, res: Response, next: NextFunct
         const issue = result.rows[0];
 
         if (!issue) {
-            return res.status(404).json({
+            return sendResponse(res, {
+                statusCode: 404,
                 success: false,
                 message: "Issue not found",
             });
@@ -31,7 +33,8 @@ export const authorize = async (req: AuthRequest, res: Response, next: NextFunct
         if (req.user.role === "contributor") {
             // check ownership
             if (issue.reporter_id !== req.user.id) {
-                return res.status(403).json({
+                return sendResponse(res, {
+                    statusCode: 403,
                     success: false,
                     message: "You can modify only your own issue",
                 });
@@ -39,7 +42,8 @@ export const authorize = async (req: AuthRequest, res: Response, next: NextFunct
 
             // contributor can modify only open issues
             if (issue.status !== "open") {
-                return res.status(403).json({
+                return sendResponse(res, {
+                    statusCode: 403,
                     success: false,
                     message:
                         "You can modify issue only when status is open",
@@ -49,14 +53,16 @@ export const authorize = async (req: AuthRequest, res: Response, next: NextFunct
             return next();
         }
 
-        return res.status(403).json({
+        return sendResponse(res, {
+            statusCode: 403,
             success: false,
             message: "Forbidden access",
         });
     } catch (error) {
         console.error(error);
 
-        return res.status(500).json({
+        return sendResponse(res, {
+            statusCode: 500,
             success: false,
             message: "Authorization failed",
         });

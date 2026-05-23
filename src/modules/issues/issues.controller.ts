@@ -39,7 +39,12 @@ const getissues = async (req: ExpressRequest, res: Response) => {
             data: formattedData
         });
     } catch (error: any) {
-        throw new Error("Error fetching issues", { cause: error.message });
+        sendResponse(res, {
+            statusCode: 500,
+            success: false,
+            message: "Error fetching issues",
+            error: error.message
+        });
     }
 }
 
@@ -75,7 +80,12 @@ const getIssueById = async (req: ExpressRequest, res: Response) => {
             data: formattedData
         });
     } catch (error: any) {
-        throw new Error("Error fetching issue", { cause: error.message });
+        sendResponse(res, {
+            statusCode: 500,
+            success: false,
+            message: "Error fetching issue",
+            error: error.message
+        });
     }
 }
 
@@ -102,7 +112,12 @@ const createIssue = async (req: ExpressRequest, res: Response) => {
             data: result
         });
     } catch (error: any) {
-        throw new Error("Error creating issue", { cause: error.message });
+        sendResponse(res, {
+            statusCode: 500,
+            success: false,
+            message: "creating issue failed",
+            error: error.message
+        });
     }
 }
 
@@ -121,7 +136,12 @@ const updateIssue = async (req: ExpressRequest, res: Response) => {
             data: result
         });
     } catch (error: any) {
-        throw new Error("Error updating issue", { cause: error.message });
+        sendResponse(res, {
+            statusCode: 500,
+            success: false,
+            message: "updating issue failed",
+            error: error.message
+        });
     }
 }
 
@@ -141,7 +161,12 @@ const deleteIssue = async (req: ExpressRequest, res: Response) => {
             message: "Issue deleted successfully",
         });
     } catch (error: any) {
-        throw new Error("Error deleting issue", { cause: error.message });
+        sendResponse(res, {
+            statusCode: 500,
+            success: false,
+            message: "deleting issue failed",
+            error: error.message
+        });
     }
 }
 

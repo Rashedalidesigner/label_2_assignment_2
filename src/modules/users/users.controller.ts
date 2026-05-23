@@ -49,7 +49,7 @@ const login = async (req: Request, res: Response) => {
         sendResponse(res, {
             statusCode: 500,
             success: false,
-            message: "Error logging in",
+            message: "login failed",
             error: error.message
         });
     }
@@ -98,7 +98,7 @@ const createUser = async (req: Request, res: Response) => {
         sendResponse(res, {
             statusCode: 500,
             success: false,
-            message: "Error creating user",
+            message: "could not register user",
             error: error.message
         });
     }
