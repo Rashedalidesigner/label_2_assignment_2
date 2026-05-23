@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { issusesController } from "./issues.controller";
-import { auth } from "../../Middleware/auth";
-import { authorize } from "../../Middleware/authrole";
+import { issusesController } from "./issues.controller.js";
+import { auth } from "../../Middleware/auth.js";
+import { authorize } from "../../Middleware/authrole.js";
 
 
 const router = Router();
