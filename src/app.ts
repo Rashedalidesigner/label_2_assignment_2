@@ -1,7 +1,7 @@
 import express from "express";
-import { IssuesRouter } from "./modules/issues/issues.route";
-import { UsersRouter } from "./modules/users/users.route";
-// import { issusesRouter } from "./modules/issues/issues.controller";
+import { IssuesRouter } from "./modules/issues/issues.route.js";
+import { UsersRouter } from "./modules/users/users.route.js";
+
 
 const app = express();
 
