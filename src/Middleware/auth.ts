@@ -42,7 +42,7 @@ export const auth = async (req: AuthRequest,
         return sendResponse(res, {
             statusCode: 500,
             success: false,
-            message: "Error occurred while authenticating",
+            message: "Authentication failed",
             error: error.message
         });
     }
