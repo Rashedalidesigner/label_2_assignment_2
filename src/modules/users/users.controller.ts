@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { usersServices } from "./users.services";
-import config from "../../config/config";
-import { sendResponse } from "../../utility/sendResponse";
+import { usersServices } from "./users.services.js";
+import config from "../../config/config.js";
+import { sendResponse } from "../../utility/sendResponse.js";
 
 const login = async (req: Request, res: Response) => {
     try {

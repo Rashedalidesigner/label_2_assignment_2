@@ -1,7 +1,7 @@
 import type { Request as ExpressRequest, Response } from "express";
-import { issuesService } from "./issues.services";
-import type { IssueWithReporter } from "./Issues.interface";
-import { sendResponse } from "../../utility/sendResponse";
+import { issuesService } from "./issues.services.js";
+import type { IssueWithReporter } from "./Issues.interface.js";
+import { sendResponse } from "../../utility/sendResponse.js";
 
 const getissues = async (req: ExpressRequest, res: Response) => {
     try {

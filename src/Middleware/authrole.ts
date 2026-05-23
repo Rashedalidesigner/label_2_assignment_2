@@ -1,8 +1,8 @@
 // middlewares/authorize.ts
 
 import type { NextFunction, Response } from "express";
-import type { AuthRequest } from "./auth";
-import { pool } from "../db";
+import type { AuthRequest } from "./auth.js";
+import { pool } from "../db/index.js";
 
 export const authorize = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

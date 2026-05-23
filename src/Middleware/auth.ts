@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { usersServices } from "../modules/users/users.services";
+import { usersServices } from "../modules/users/users.services.js";
 
 export interface AuthRequest extends Request {
     user?: any;

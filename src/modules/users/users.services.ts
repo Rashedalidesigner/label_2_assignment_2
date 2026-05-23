@@ -1,5 +1,5 @@
-import { pool } from "../../db";
-import type { IUser } from "./users.interface";
+import { pool } from "../../db/index.js";
+import type { IUser } from "./users.interface.js";
 
 
 const getUserById = async (email: string) => {

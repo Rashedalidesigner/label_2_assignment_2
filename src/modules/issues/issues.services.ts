@@ -1,5 +1,5 @@
 
-import { pool } from "../../db";
+import { pool } from "../../db/index.js";
 import type { Issue } from "./Issues.interface";
 
 const createIssueInDB = async (issueData: Issue) => {

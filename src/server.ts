@@ -1,6 +1,6 @@
-import app from "./app";
-import config from "./config/config";
-import { initilizeDB } from "./db";
+import app from "./app.js";
+import config from "./config/config.js";
+import { initilizeDB } from "./db/index.js";
 
 const main = () => {
     initilizeDB();
