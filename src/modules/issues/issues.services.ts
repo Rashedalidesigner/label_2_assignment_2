@@ -16,9 +16,46 @@ const createIssueInDB = async (issueData: Issue) => {
     }
 };
 
-const getAllIssuesFromDB = async () => {
+const getAllIssuesFromDB = async (sort: string, type?: string | undefined, status?: string | undefined) => {
     try {
-        const result = await pool.query("SELECT issues.*,users.id AS reporter_id,users.name AS reporter_name,users.role AS reporter_role FROM issues INNER JOIN users ON users.id = issues.reporter_id");
+        let query = `
+      SELECT 
+        issues.*,
+        users.id AS reporter_id,
+        users.name AS reporter_name,
+        users.role AS reporter_role
+      FROM issues
+      INNER JOIN users ON users.id = issues.reporter_id
+    `;
+
+        const conditions: string[] = [];
+        const values: any[] = [];
+
+        // Filter by type
+        if (type) {
+            values.push(type);
+            conditions.push(`issues.type = $${values.length}`);
+        }
+
+        // Filter by status
+        if (status) {
+            values.push(status);
+            conditions.push(`issues.status = $${values.length}`);
+        }
+
+        // Add WHERE clause if filters exist
+        if (conditions.length > 0) {
+            query += ` WHERE ` + conditions.join(" AND ");
+        }
+
+        // Sorting
+        if (sort === "oldest") {
+            query += ` ORDER BY issues.created_at ASC`;
+        } else {
+            query += ` ORDER BY issues.created_at DESC`;
+        }
+
+        const result = await pool.query(query, values);
         return result.rows;
     } catch (error: any) {
         console.error("Error fetching issues from database:", error.message);

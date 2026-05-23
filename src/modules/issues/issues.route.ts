@@ -1,15 +1,15 @@
 import { Router } from "express";
 import { issusesController } from "./issues.controller";
 import { auth } from "../../Middleware/auth";
+import { authorize } from "../../Middleware/authrole";
 
 
 const router = Router();
 
-// Define routes for issues here
-router.get("/issues", issusesController.getissues);
-router.post("/issues", auth("contributor", "maintainer"), issusesController.createIssue);
-router.patch("/issues/:id", auth("maintainer", "contributor"), issusesController.updateIssue);
-router.delete("/issues/:id", auth("maintainer"), issusesController.deleteIssue);
-router.get("/issues/:id", issusesController.getIssueById);
+router.get("/issues", auth, issusesController.getissues);
+router.post("/issues", auth, issusesController.createIssue);
+router.patch("/issues/:id", auth, authorize, issusesController.updateIssue);
+router.delete("/issues/:id", auth, authorize, issusesController.deleteIssue);
+router.get("/issues/:id", auth, issusesController.getIssueById);
 
 export const IssuesRouter = router;

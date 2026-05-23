@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import { usersServices } from "./users.services";
 import config from "../../config/config";
 
@@ -8,7 +9,6 @@ const login = async (req: Request, res: Response) => {
         const { email, password } = req.body;
 
         const user = await usersServices.getUserById(email);
-        console.log(user);
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -16,7 +16,8 @@ const login = async (req: Request, res: Response) => {
             });
         }
 
-        const isPasswordValid = user.password === password;
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        console.log(isPasswordValid);
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
@@ -28,11 +29,17 @@ const login = async (req: Request, res: Response) => {
             expiresIn: "1d"
         });
 
+        const userWithoutPassword = { ...user };
+        delete userWithoutPassword.password;
+
         res.json({
             success: true,
             message: "User retrieved successfully",
-            data: user,
-            token: genaratedToken
+            data: {
+                token: genaratedToken,
+                user: userWithoutPassword
+            },
+
         });
     } catch (error: any) {
         res.status(500).json({
@@ -55,7 +62,18 @@ const createUser = async (req: Request, res: Response) => {
             });
         }
 
-        const newUser = await usersServices.createUser(req.body);
+        let password = req.body.password;
+        if (!password || password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 6 characters long",
+            });
+        }
+        const data = req.body;
+
+        password = await bcrypt.hashSync(password, 10);
+        data.password = password;
+        const newUser = await usersServices.createUser({ ...req.body, password });
 
         if (!newUser) {
             return res.status(500).json({

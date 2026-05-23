@@ -1,10 +1,13 @@
-import type { Request, Response } from "express";
+import type { Request as ExpressRequest, Response } from "express";
 import { issuesService } from "./issues.services";
 import type { IssueWithReporter } from "./Issues.interface";
 
-const getissues = async (req: Request, res: Response) => {
+const getissues = async (req: ExpressRequest, res: Response) => {
     try {
-        const result = await issuesService.getAllIssuesFromDB();
+        const sort = req.query.sort as string || "newest";
+        const type = req.query.type as string | undefined;
+        const status = req.query.status as string | undefined;
+        const result = await issuesService.getAllIssuesFromDB(sort, type, status);
         if (!result || result.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -37,7 +40,7 @@ const getissues = async (req: Request, res: Response) => {
     }
 }
 
-const getIssueById = async (req: Request, res: Response) => {
+const getIssueById = async (req: ExpressRequest, res: Response) => {
     try {
         const result: IssueWithReporter = await issuesService.getIssueByIdFromDB(Number(req.params.id));
         if (!result) {
@@ -72,7 +75,7 @@ const getIssueById = async (req: Request, res: Response) => {
 }
 
 
-const createIssue = async (req: Request, res: Response) => {
+const createIssue = async (req: ExpressRequest, res: Response) => {
     const issueData = req.body;
     const id = req.user.id;
     issueData.reporter_id = id;
@@ -97,7 +100,7 @@ const createIssue = async (req: Request, res: Response) => {
 }
 
 
-const updateIssue = async (req: Request, res: Response) => {
+const updateIssue = async (req: ExpressRequest, res: Response) => {
     const issueData = req.body;
     const id = req.user.id;
     issueData.status = issueData.status || 'in_progress';
@@ -114,7 +117,7 @@ const updateIssue = async (req: Request, res: Response) => {
     }
 }
 
-const deleteIssue = async (req: Request, res: Response) => {
+const deleteIssue = async (req: ExpressRequest, res: Response) => {
     try {
         const result = await issuesService.deleteIssueFromDB(Number(req.params.id));
         if (!result) {
@@ -131,7 +134,6 @@ const deleteIssue = async (req: Request, res: Response) => {
         throw new Error("Error deleting issue", { cause: error.message });
     }
 }
-
 
 
 export const issusesController = {
